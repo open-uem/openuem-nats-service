@@ -1,0 +1,44 @@
+jetstream: enabled
+
+jetstream {
+    store_dir: "C:\\Program Files\\OpenUEM Server\\nats"
+    max_mem: 1G
+    max_file: 5G
+}
+
+tls {
+  cert_file:  "{{ .NATSCertPath }}"
+  key_file:   "{{ .NATSKeyPath }}"
+  ca_file:   "{{ .NATSCAPath }}"
+  verify_and_map: true
+  ocsp_peer: true
+}
+
+authorization: {  
+  users = [
+    {user: "CN=OpenUEM Cert-Manager Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
+      sub: {
+        allow: ["_INBOX.>", "certificates.>"]
+      }
+    }},
+    {user: "CN=OpenUEM Notification Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
+      sub: {
+        allow: ["_INBOX.>", "notification.>"]
+      }
+    }},
+    {user: "CN=OpenUEM Console,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
+      publish: ["agent.>", "notification.>", "certificates.>"]
+    }},
+    {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: { 
+      sub: {
+        allow: ["report openuem-agents", "deployresult openuem-agents"]
+      }
+    }},
+    {user: "CN=OpenUEM Agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
+      sub: {
+        allow: ["_INBOX.>", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.> openuem-agent-management", "agent.disable.> openuem-agent-management", "agent.report.> openuem-agent-management", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management"]
+      },
+      publish: ["report", "_INBOX.>", "deployresult"]
+    }},
+  ]
+}
