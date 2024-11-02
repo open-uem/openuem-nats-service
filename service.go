@@ -25,6 +25,7 @@ type NATSConfig struct {
 	NATSCertPath string
 	NATSKeyPath  string
 	NATSCAPath   string
+	Port         string
 }
 
 type OpenUEMService struct {
@@ -60,7 +61,7 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 	exePath := filepath.Join(cwd, "bin", "nats", "nats-server.exe")
 	cfgPath := filepath.Join(cwd, "config", "nats.cfg")
 
-	natsCmd := exec.Command(exePath, "-c", cfgPath, "-p", "4433", "-m", "8433")
+	natsCmd := exec.Command(exePath, "-c", cfgPath, "-m", "8433")
 
 	go func() {
 		if err := natsCmd.Start(); err != nil {
@@ -160,10 +161,10 @@ func generateNatsConfig() error {
 		return err
 	}
 
-	data.PostalCode, err = getValueFromRegistry(k, "OrgPostalCode")
+	data.Port, err = getValueFromRegistry(k, "NATSPort")
 	if err != nil {
-		log.Println("[ERROR]: could not get org province")
-		return err
+		log.Println("[ERROR]: could not get NATS Port")
+		data.Port = "4433"
 	}
 
 	cwd, err := getWd()
