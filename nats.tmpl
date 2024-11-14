@@ -20,27 +20,27 @@ authorization: {
   users = [
     {user: "CN=OpenUEM Cert-Manager Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "certificates.>"]
+        allow: ["_INBOX.>", "certificates.>", "ping.certmanagerworker openuem-cert-manager"]
       }
     }},
     {user: "CN=OpenUEM Notification Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "notification.>"]
+        allow: ["_INBOX.>", "notification.>", "ping.notificationworker openuem-notification", "$JS.API.STREAM.CREATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
       }
     }},
     {user: "CN=OpenUEM Console,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
-      publish: ["agent.>", "notification.>", "certificates.>"]
+      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>"]
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: { 
       sub: {
-        allow: ["report openuem-agents", "deployresult openuem-agents"]
+        allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents"]
       }
     }},
     {user: "CN=OpenUEM Agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Street }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.> openuem-agent-management", "agent.disable.> openuem-agent-management", "agent.report.> openuem-agent-management", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management"]
+        allow: ["_INBOX.>", "agentupdate.>", "agentrollback.>", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.> openuem-agent-management", "agent.disable.> openuem-agent-management", "agent.report.> openuem-agent-management", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management"]
       },
-      publish: ["report", "_INBOX.>", "deployresult"]
+      publish: ["report", "_INBOX.>", "deployresult", "$JS.API.STREAM.CREATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
     }},
   ]
 }
