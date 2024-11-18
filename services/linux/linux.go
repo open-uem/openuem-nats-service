@@ -3,11 +3,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
-	"strconv"
+	"path/filepath"
 	"syscall"
 	"text/template"
 
@@ -55,14 +56,21 @@ func main() {
 
 	natsCmd := exec.Command(exePath, "-c", cfgPath, "-m", "8433")
 
+	// Save pid to PIDFILE
+	wd, err := getWd()
+	if err != nil {
+		log.Fatal("[FATAL]: could not get working directory")
+	}
+
+	pidFile := filepath.Join(wd, "NATSPIDFILE")
+
 	go func() {
 		if err := natsCmd.Start(); err != nil {
 			log.Printf("[ERROR]: could not start nats command: %v", err)
 			return
 		}
 
-		// Save pid to PIDFILE
-		if err := os.WriteFile("PIDFILE", []byte(strconv.Itoa(os.Getpid())), 0666); err != nil {
+		if err := os.WriteFile(pidFile, []byte(fmt.Sprintf("%d\n", os.Getpid())), 0666); err != nil {
 			log.Fatal("[FATAL]: could not create pid file")
 		}
 
@@ -80,15 +88,17 @@ func main() {
 	log.Println("[INFO]: the NATS server is ready and listening")
 	<-done
 
-	l.Close()
-	stopCmd := exec.Command("/usr/bin/pkill", "-F", "./PIDFILE")
+	stopCmd := exec.Command("/usr/bin/pkill", "-F", pidFile)
 	if err := stopCmd.Start(); err != nil {
 		log.Println("[ERROR]: could not kill nats-server process")
 	}
 
 	// TODO remove PIDFILE
-
-	log.Printf("[INFO]: the OCSP responder has stopped listening\n")
+	if err := os.Remove(pidFile); err != nil {
+		log.Println("[ERROR]: could not remove PIDFILE")
+	}
+	log.Printf("[INFO]: the NATS responder has stopped listening\n")
+	l.Close()
 }
 
 func generateNatsConfig() error {
@@ -188,4 +198,13 @@ func generateNatsConfig() error {
 	}
 
 	return nil
+}
+
+func getWd() (string, error) {
+	ex, err := os.Executable()
+	if err != nil {
+		log.Printf("[ERROR]:could not get executable info: %v", err)
+		return "", err
+	}
+	return filepath.Dir(ex), nil
 }
