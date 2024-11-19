@@ -33,14 +33,14 @@ authorization: {
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
       sub: {
-        allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents"]
+        allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
       }
     }},
     {user: "CN=OpenUEM Agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "agentupdate.>", "agentrollback.>", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.> openuem-agent-management", "agent.disable.> openuem-agent-management", "agent.report.> openuem-agent-management", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management"]
+        allow: ["_INBOX.>", "agentupdate.>", "agentrollback.>", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.> openuem-agent-management", "agent.disable.> openuem-agent-management", "agent.report.> openuem-agent-management", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management"]
       },
-      publish: ["report", "_INBOX.>", "deployresult", "$JS.API.STREAM.CREATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
+      publish: ["report", "_INBOX.>", "deployresult", "agentconfig", "$JS.API.STREAM.CREATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
     }},
   ]
 }

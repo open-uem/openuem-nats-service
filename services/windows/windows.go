@@ -157,11 +157,11 @@ func generateNatsConfig() error {
 		data.Port = "4433"
 	}
 
-	data.JetstreamStore = "C:\\Program Files\\OpenUEM Server\\nats"
+	data.JetstreamStore = "C:\\\\Program Files\\\\OpenUEM Server\\\\nats"
 
 	cwd, err := getWd()
 	if err != nil {
-		log.Println("[ERROR]: could not get workin directory")
+		log.Println("[ERROR]: could not get working directory")
 		return err
 	}
 
