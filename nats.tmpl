@@ -20,7 +20,7 @@ authorization: {
   users = [
     {user: "CN=OpenUEM Cert-Manager Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "certificates.>", "ping.certmanagerworker openuem-cert-manager"]
+        allow: ["_INBOX.>", "certificates.>", "ping.certmanagerworker openuem-cert-manager", "$JS.API.STREAM.CREATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
       }
     }},
     {user: "CN=OpenUEM Notification Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
@@ -36,9 +36,9 @@ authorization: {
         allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
       }
     }},
-    {user: "CN=OpenUEM Agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
+    {user: "CN=OpenUEM Agent,OU=agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "agentupdate.>", "agentrollback.>", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.> openuem-agent-management", "agent.disable.> openuem-agent-management", "agent.report.> openuem-agent-management", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management"]
+        allow: ["_INBOX.>", "agentupdate.>", "agentrollback.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management"]
       },
       publish: ["report", "_INBOX.>", "deployresult", "agentconfig", "$JS.API.STREAM.CREATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
     }},
