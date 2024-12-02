@@ -29,7 +29,12 @@ authorization: {
       }
     }},
     {user: "CN=OpenUEM Console,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
-      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>"]
+      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "nats.update.>", "nats.rollback.>", "ocsp.update.>", "ocsp.rollback.>", "agent-worker.update.>", "agent-worker.rollback.>", "notification-worker.update.>", "notification-worker.rollback.>", "cert-manager-worker.update.>", "cert-manager-worker.rollback.>", "console.update.>", "console.rollback.>"]
+    }},
+    {user: "CN=OpenUEM Updater Client,OU=updater,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
+      sub: {
+        allow: ["agentupdate.>", "agentrollback.>", "agent.update.messenger", "agent.rollback.messenger", "nats.update.>", "nats.rollback.>", "ocsp.update.>", "ocsp.rollback.>", "agent-worker.update.>", "agent-worker.rollback.>", "notification-worker.update.>", "notification-worker.rollback.>", "cert-manager-worker.update.>", "cert-manager-worker.rollback.>", "console.update.>", "console.rollback.>"]
+      }
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
       sub: {
@@ -38,7 +43,7 @@ authorization: {
     }},
     {user: "CN=OpenUEM Agent,OU=agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "agentupdate.>", "agentrollback.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>", "agent.update.updater", "agent.update.messenger", "agent.rollback.messenger", "agent.update.updater", "agent.rollback.updater", "agent.rollback", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management"]
+        allow: ["_INBOX.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>", "agent.update.updater", "agent.rollback.updater", "agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management"]
       },
       publish: ["report", "_INBOX.>", "deployresult", "agentconfig", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
     }},
