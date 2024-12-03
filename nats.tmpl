@@ -29,11 +29,11 @@ authorization: {
       }
     }},
     {user: "CN=OpenUEM Console,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
-      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "server.rollback.>"]
+      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "nats.update.>", "nats.rollback.>", "console.update.>", "console.rollback.>", "agent-worker.update.>", "agent-worker.rollback.>", "cert-manager-worker.update.>", "cert-manager-worker.rollback.>", "notification-worker.update.>", "notification-worker.rollback.>", "ocsp.update.>", "ocsp.rollback.>", "cert-manager.update.>", "cert-manager.rollback.>"]
     }},
     {user: "CN=OpenUEM Updater Client,OU=updater,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "server.update.>", "server.rollback.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
+        allow: ["_INBOX.>", "nats.update.>", "nats.rollback.>", "console.update.>", "console.rollback.>", "agent-worker.update.>", "agent-worker.rollback.>", "cert-manager-worker.update.>", "cert-manager-worker.rollback.>", "notification-worker.update.>", "notification-worker.rollback.>", "ocsp.update.>", "ocsp.rollback.>", "cert-manager.update.>", "cert-manager.rollback.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
       }
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
