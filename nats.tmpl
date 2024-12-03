@@ -29,7 +29,12 @@ authorization: {
       }
     }},
     {user: "CN=OpenUEM Console,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
-      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>"]
+      publish: ["agent.>", "agentupdate.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "server.rollback.>"]
+    }},
+    {user: "CN=OpenUEM Updater Client,OU=updater,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
+      sub: {
+        allow: ["_INBOX.>", "server.update.>", "server.rollback.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
+      }
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
       sub: {

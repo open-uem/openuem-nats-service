@@ -14,6 +14,9 @@ import (
 
 	"github.com/doncicuto/openuem-nats-service/common"
 	"github.com/doncicuto/openuem-nats-service/logger"
+	"github.com/doncicuto/openuem-nats-service/models"
+	"github.com/doncicuto/openuem_ent/component"
+	"github.com/doncicuto/openuem_utils"
 	"golang.org/x/sys/windows/registry"
 	"golang.org/x/sys/windows/svc"
 )
@@ -33,6 +36,25 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
+
+	dbUrl, err := openuem_utils.CreatePostgresDatabaseURL()
+	if err != nil {
+		log.Println("[ERROR]: could not get database url")
+		return
+	}
+
+	model, err := models.New(dbUrl)
+	if err != nil {
+		log.Println("[ERROR]: could not connect with database")
+		return
+	}
+	log.Println("[INFO]: connected to database")
+
+	// Save component version
+	if err := model.SetComponent(component.ComponentNats, common.VERSION, common.CHANNEL); err != nil {
+		log.Fatalf("[ERROR]: could not save component information")
+	}
+	log.Println("[INFO]: component information saved")
 
 	err = generateNatsConfig()
 	if err != nil {

@@ -1,0 +1,6 @@
+[submodule "models/ent"]
+	path = models/ent
+	url = git@github.com:doncicuto/openuem-ent.git
+[submodule "utils"]
+	path = utils
+	url = git@github.com:doncicuto/openuem-utils.git
