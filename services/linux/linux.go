@@ -10,25 +10,10 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
-	"text/template"
 
 	"github.com/doncicuto/openuem-nats-service/common"
 	"github.com/doncicuto/openuem-nats-service/logger"
-	"gopkg.in/ini.v1"
 )
-
-type NATSConfig struct {
-	Org          string
-	Street       string
-	Locality     string
-	Province     string
-	Country      string
-	PostalCode   string
-	NATSCertPath string
-	NATSKeyPath  string
-	NATSCAPath   string
-	Port         string
-}
 
 type OpenUEMService struct {
 	Logger *logger.OpenUEMLogger
@@ -41,9 +26,11 @@ func New(l *logger.OpenUEMLogger) *OpenUEMService {
 }
 
 func main() {
+	var natsCmd *exec.Cmd
+
 	l := logger.New()
 
-	err := generateNatsConfig()
+	config, err := common.GenerateNatsConfig()
 	if err != nil {
 		log.Fatalf("[FATAL]: could not generate NATS config")
 
@@ -51,10 +38,14 @@ func main() {
 
 	log.Println("[INFO]: launching NATS server")
 
-	exePath := "/opt/openuem-server/bin/nats/nats-server"
-	cfgPath := "/etc/openuem-server/nats.cfg"
+	exePath := common.GetNATSBinPath()
+	cfgPath := common.GetNATSConfigPath()
 
-	natsCmd := exec.Command(exePath, "-c", cfgPath, "-m", "8433")
+	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
+		natsCmd = exec.Command(exePath, "--cluster_name", config.ClusterName, "-cluster", "nats://"+config.ServerName+":"+config.ClusterPort, "-routes", config.OtherServers, "-c", cfgPath)
+	} else {
+		natsCmd = exec.Command(exePath, "-c", cfgPath)
+	}
 
 	// Save pid to PIDFILE
 	wd, err := getWd()
@@ -99,105 +90,6 @@ func main() {
 	}
 	log.Printf("[INFO]: the NATS responder has stopped listening\n")
 	l.Close()
-}
-
-func generateNatsConfig() error {
-	var err error
-	data := common.NATSConfig{}
-
-	// Open ini file
-	cfg, err := ini.Load("/etc/openuem-server/openuem.ini")
-	if err != nil {
-		return err
-	}
-
-	key, err := cfg.Section("Server").GetKey("org_name")
-	if err != nil {
-		log.Println("[ERROR]: could not get org name")
-		return err
-	}
-	data.Org = key.String()
-
-	key, err = cfg.Section("Server").GetKey("org_address")
-	if err != nil {
-		log.Println("[ERROR]: could not get org address")
-		return err
-	}
-	data.Street = key.String()
-
-	key, err = cfg.Section("Server").GetKey("org_country")
-	if err != nil {
-		log.Println("[ERROR]: could not get org country")
-		return err
-	}
-	data.Country = key.String()
-
-	key, err = cfg.Section("Server").GetKey("org_locality")
-	if err != nil {
-		log.Println("[ERROR]: could not get org locality")
-		return err
-	}
-	data.Locality = key.String()
-
-	key, err = cfg.Section("Server").GetKey("org_province")
-	if err != nil {
-		log.Println("[ERROR]: could not get org province")
-		return err
-	}
-	data.Province = key.String()
-
-	key, err = cfg.Section("Server").GetKey("nats_port")
-	if err != nil {
-		log.Println("[ERROR]: could not get NATS port")
-		return err
-	}
-	data.Port = key.String()
-
-	data.JetstreamStore = "/opt/openuem-server/bin/nats"
-
-	key, err = cfg.Section("Server").GetKey("ca_cert_path")
-	if err != nil {
-		log.Println("[ERROR]: could not get CA certificate path")
-		return err
-	}
-	data.NATSCAPath = key.String()
-
-	key, err = cfg.Section("Server").GetKey("nats_cert_path")
-	if err != nil {
-		log.Println("[ERROR]: could not get NATS certificate path")
-		return err
-	}
-	data.NATSCertPath = key.String()
-
-	key, err = cfg.Section("Server").GetKey("nats_key_path")
-	if err != nil {
-		log.Println("[ERROR]: could not get NATS private key path")
-		return err
-	}
-	data.NATSKeyPath = key.String()
-
-	tmplPath := "/opt/openuem-server/bin/nats/nats.tmpl"
-	tmpl, err := template.New("nats.tmpl").ParseFiles(tmplPath)
-	if err != nil {
-		log.Printf("[ERROR]: could not open the template: %v", err)
-		return err
-	}
-
-	cfgPath := "/etc/openuem-server/nats.cfg"
-	file, err := os.Create(cfgPath)
-	if err != nil {
-		log.Printf("[ERROR]:could not create the config file: %v", err)
-		return err
-	}
-	defer file.Close()
-
-	err = tmpl.Execute(file, data)
-	if err != nil {
-		log.Printf("[ERROR]:could not generate the config file from the template: %v", err.Error())
-		return err
-	}
-
-	return nil
 }
 
 func getWd() (string, error) {

@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/doncicuto/openuem_utils"
 )
 
 type OpenUEMLogger struct {
@@ -16,13 +18,12 @@ func New() *OpenUEMLogger {
 	logger := OpenUEMLogger{}
 
 	// Get executable path to store logs
-	ex, err := os.Executable()
+	cwd, err := openuem_utils.GetWd()
 	if err != nil {
 		log.Fatalf("could not get executable info: %v", err)
 	}
-	wd := filepath.Dir(ex)
 
-	logPath := filepath.Join(wd, "logs", "openuem-nats-service.txt")
+	logPath := filepath.Join(cwd, "logs", "openuem-nats-service.txt")
 	logger.LogFile, err = os.OpenFile(logPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("could not create log file: %v", err)
