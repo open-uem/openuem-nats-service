@@ -4,15 +4,12 @@ package main
 
 import (
 	"log"
-	"os/exec"
 	"strconv"
 	"time"
 
 	"github.com/doncicuto/openuem-nats-service/internal/common"
 	"github.com/doncicuto/openuem-nats-service/internal/logger"
-	"github.com/doncicuto/openuem-nats-service/internal/models"
-	"github.com/doncicuto/openuem_ent/component"
-	"github.com/doncicuto/openuem_utils"
+	"github.com/nats-io/nats-server/v2/server"
 	"golang.org/x/sys/windows/svc"
 )
 
@@ -28,49 +25,52 @@ func New(l *logger.OpenUEMLogger) *OpenUEMService {
 
 func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
 	var err error
-	var natsCmd *exec.Cmd
+	/* var natsCmd *exec.Cmd */
 
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
-
-	dbUrl, err := openuem_utils.CreatePostgresDatabaseURL()
-	if err != nil {
-		log.Println("[ERROR]: could not get database url")
-		return
-	}
-
-	model, err := models.New(dbUrl)
-	if err != nil {
-		log.Println("[ERROR]: could not connect with database")
-		return
-	}
-	log.Println("[INFO]: connected to database")
-
-	// Save component version
-	if err := model.SetComponent(component.ComponentNats, common.VERSION, common.CHANNEL); err != nil {
-		log.Fatalf("[ERROR]: could not save component information")
-	}
-	log.Println("[INFO]: component information saved")
 
 	config, err := common.GenerateNatsConfig()
 	if err != nil {
 		return
 	}
 
-	// TODO may we set the port from registry key and avoid harcoding it?
 	log.Println("[INFO]: launching NATS server")
 
-	exePath := common.GetNATSBinPath()
+	/* exePath := common.GetNATSBinPath() */
 	cfgPath := common.GetNATSConfigPath()
 
+	flagOpts := server.Options{}
+
 	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
-		natsCmd = exec.Command(exePath, "--cluster_name", config.ClusterName, "-cluster", "nats://"+config.ServerName+":"+config.ClusterPort, "-routes", config.OtherServers, "-c", cfgPath)
-	} else {
-		natsCmd = exec.Command(exePath, "-c", cfgPath)
+		flagOpts.Cluster.Name = config.ClusterName
+		flagOpts.Cluster.Host = config.ServerName
+		flagOpts.Cluster.Port, err = strconv.Atoi(config.ClusterPort)
+		if err != nil {
+			log.Println("[FATAL]: could not set NATS cluster port")
+			return
+		}
+		// TODO - Add routes to other servers using config.OtherServers
+		// natsCmd = exec.Command(exePath, "--cluster_name", config.ClusterName, "-cluster", "nats://"+config.ServerName+":"+config.ClusterPort, "-routes", config.OtherServers, "-c", cfgPath)
 	}
 
-	go func() {
+	fileOpts, err := server.ProcessConfigFile(cfgPath)
+	if err != nil {
+		log.Println("[FATAL]: could not parse NATS config file")
+		return
+	}
+
+	opts := server.MergeOptions(fileOpts, &flagOpts)
+	ns, err := server.NewServer(opts)
+	if err != nil {
+		log.Fatalf("server init: %v", err)
+	}
+
+	go ns.Start()
+	log.Println("[INFO]: NATS embedded server has been started")
+
+	/* go func() {
 		if err := natsCmd.Start(); err != nil {
 			log.Printf("[ERROR]: could not start nats command: %v", err)
 			return
@@ -82,7 +82,7 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		}
 
 		log.Println("[INFO]: NATS server is running")
-	}()
+	}() */
 
 	// service control manager
 loop:
@@ -97,10 +97,12 @@ loop:
 			case svc.Stop, svc.Shutdown:
 				log.Println("[INFO]: service has received the stop or shutdown command")
 
-				kill := exec.Command("TASKKILL", "/T", "/F", "/PID", strconv.Itoa(natsCmd.Process.Pid))
+				ns.Shutdown()
+				log.Println("[INFO]: NATS embedded server shutdown")
+				/* kill := exec.Command("TASKKILL", "/T", "/F", "/PID", strconv.Itoa(natsCmd.Process.Pid))
 				if err := kill.Run(); err != nil {
 					log.Printf("[ERROR]: could not kill NATS server process %v", err.Error())
-				}
+				} */
 
 				s.Logger.Close()
 				break loop
