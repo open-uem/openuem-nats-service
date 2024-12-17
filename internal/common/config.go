@@ -27,6 +27,7 @@ type NATSConfig struct {
 	ClusterPort    string
 	OtherServers   string
 	ServerName     string
+	Debug          bool
 }
 
 func GenerateNatsConfig() (*NATSConfig, error) {
@@ -156,6 +157,13 @@ func GenerateNatsConfig() (*NATSConfig, error) {
 	key, err = cfg.Section("NATS").GetKey("NATSOtherServers")
 	if err == nil {
 		data.OtherServers = key.String()
+	}
+
+	key, err = cfg.Section("NATS").GetKey("Debug")
+	if err == nil {
+		if key.String() == "true" {
+			data.Debug = true
+		}
 	}
 
 	return &data, nil

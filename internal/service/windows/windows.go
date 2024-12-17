@@ -49,7 +49,11 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		return
 	}
 
-	cwd, _ := openuem_utils.GetWd()
+	cwd, err := openuem_utils.GetWd()
+	if err != nil {
+		log.Println("[FATAL]: could not get working directory")
+		return
+	}
 
 	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
 		flagOpts, err = GetFlagsOptions(config)
@@ -61,10 +65,12 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		fileOpts.Cluster.Port = flagOpts.Cluster.Port
 		fileOpts.HTTPPort = 8222
 		fileOpts.Routes = flagOpts.Routes
+	}
+
+	if config.Debug {
 		fileOpts.Debug = true
 		fileOpts.Trace = true
-		fileOpts.TraceVerbose = true
-		fileOpts.LogFile = filepath.Join(cwd, "logs", "nats-cluster-log.txt")
+		fileOpts.LogFile = filepath.Join(cwd, "logs", "openuem-nats-debug.txt")
 	}
 
 	ns, err := server.NewServer(fileOpts)
