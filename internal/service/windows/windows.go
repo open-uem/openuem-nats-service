@@ -41,22 +41,25 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 	log.Println("[INFO]: launching NATS server")
 
 	cfgPath := common.GetNATSConfigPath()
-	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
-		flagOpts, err = GetFlagsOptions(config)
-		if err != nil {
-			log.Printf("[FATAL]: could not create Flags options, reason: %v", err)
-			return
-		}
-	}
-
 	fileOpts, err := server.ProcessConfigFile(cfgPath)
 	if err != nil {
 		log.Println("[FATAL]: could not parse NATS config file")
 		return
 	}
 
-	opts := server.MergeOptions(fileOpts, flagOpts)
-	ns, err := server.NewServer(opts)
+	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
+		flagOpts, err = GetFlagsOptions(config)
+		if err != nil {
+			log.Printf("[FATAL]: could not create Flags options, reason: %v", err)
+			return
+		}
+		fileOpts.Cluster.Name = flagOpts.Cluster.Name
+		fileOpts.Cluster.Host = flagOpts.Cluster.Host
+		fileOpts.Cluster.Port = flagOpts.Cluster.Port
+		fileOpts.Routes = flagOpts.Routes
+	}
+
+	ns, err := server.NewServer(fileOpts)
 	if err != nil {
 		log.Fatalf("server init: %v", err)
 	}
