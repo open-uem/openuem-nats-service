@@ -54,7 +54,6 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 			return
 		}
 		fileOpts.Cluster.Name = flagOpts.Cluster.Name
-		fileOpts.Cluster.Host = flagOpts.Cluster.Host
 		fileOpts.Cluster.Port = flagOpts.Cluster.Port
 		fileOpts.Routes = flagOpts.Routes
 	}
