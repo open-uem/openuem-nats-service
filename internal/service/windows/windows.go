@@ -4,7 +4,9 @@ package main
 
 import (
 	"log"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/doncicuto/openuem-nats-service/internal/common"
@@ -25,7 +27,7 @@ func New(l *logger.OpenUEMLogger) *OpenUEMService {
 
 func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (ssec bool, errno uint32) {
 	var err error
-	/* var natsCmd *exec.Cmd */
+	var flagOpts *server.Options
 
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 	changes <- svc.Status{State: svc.StartPending}
@@ -38,21 +40,13 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 
 	log.Println("[INFO]: launching NATS server")
 
-	/* exePath := common.GetNATSBinPath() */
 	cfgPath := common.GetNATSConfigPath()
-
-	flagOpts := server.Options{}
-
 	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
-		flagOpts.Cluster.Name = config.ClusterName
-		flagOpts.Cluster.Host = config.ServerName
-		flagOpts.Cluster.Port, err = strconv.Atoi(config.ClusterPort)
+		flagOpts, err = GetFlagsOptions(config)
 		if err != nil {
-			log.Println("[FATAL]: could not set NATS cluster port")
+			log.Printf("[FATAL]: could not create Flags options, reason: %v", err)
 			return
 		}
-		// TODO - Add routes to other servers using config.OtherServers
-		// natsCmd = exec.Command(exePath, "--cluster_name", config.ClusterName, "-cluster", "nats://"+config.ServerName+":"+config.ClusterPort, "-routes", config.OtherServers, "-c", cfgPath)
 	}
 
 	fileOpts, err := server.ProcessConfigFile(cfgPath)
@@ -61,7 +55,7 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		return
 	}
 
-	opts := server.MergeOptions(fileOpts, &flagOpts)
+	opts := server.MergeOptions(fileOpts, flagOpts)
 	ns, err := server.NewServer(opts)
 	if err != nil {
 		log.Fatalf("server init: %v", err)
@@ -69,20 +63,6 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 
 	go ns.Start()
 	log.Println("[INFO]: NATS embedded server has been started")
-
-	/* go func() {
-		if err := natsCmd.Start(); err != nil {
-			log.Printf("[ERROR]: could not start nats command: %v", err)
-			return
-		}
-
-		if err := natsCmd.Wait(); err != nil {
-			log.Printf("[ERROR]: could not wait for nats command to finish: %v", err)
-			return
-		}
-
-		log.Println("[INFO]: NATS server is running")
-	}() */
 
 	// service control manager
 loop:
@@ -127,4 +107,26 @@ func main() {
 		log.Printf("[ERROR]: could not run service: %v", err)
 	}
 
+}
+
+func GetFlagsOptions(config *common.NATSConfig) (*server.Options, error) {
+	var err error
+
+	flagOpts := server.Options{}
+	flagOpts.Cluster.Name = config.ClusterName
+	flagOpts.Cluster.Host = config.ServerName
+	flagOpts.Cluster.Port, err = strconv.Atoi(config.ClusterPort)
+	if err != nil {
+		return nil, err
+	}
+
+	flagOpts.Routes = []*url.URL{}
+	otherServers := strings.Split(config.OtherServers, ",")
+	for _, server := range otherServers {
+		u, err := url.Parse(server)
+		if err == nil {
+			flagOpts.Routes = append(flagOpts.Routes, u)
+		}
+	}
+	return &flagOpts, nil
 }
