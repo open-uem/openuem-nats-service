@@ -76,7 +76,7 @@ func GenerateNatsConfig() (*NATSConfig, error) {
 	}
 	data.Province = key.String()
 
-	key, err = cfg.Section("NATS").GetKey("NATSServers")
+	key, err = cfg.Section("NATS").GetKey("NATSServer")
 	if err != nil {
 		log.Println("[ERROR]: could not get NATS server")
 		return nil, err
