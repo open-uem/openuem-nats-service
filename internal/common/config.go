@@ -144,25 +144,19 @@ func GenerateNatsConfig() (*NATSConfig, error) {
 	}
 
 	key, err = cfg.Section("NATS").GetKey("NATSClusterPort")
-	if err != nil {
-		log.Println("[ERROR]: could not get NATS cluster port")
-		return nil, err
+	if err == nil {
+		data.ClusterPort = key.String()
 	}
-	data.ClusterPort = key.String()
 
 	key, err = cfg.Section("NATS").GetKey("NATSClusterName")
-	if err != nil {
-		log.Println("[ERROR]: could not get NATS cluster name")
-		return nil, err
+	if err == nil {
+		data.ClusterName = key.String()
 	}
-	data.ClusterName = key.String()
 
 	key, err = cfg.Section("NATS").GetKey("NATSOtherServers")
-	if err != nil {
-		log.Println("[ERROR]: could not get NATS cluster other servers")
-		return nil, err
+	if err == nil {
+		data.OtherServers = key.String()
 	}
-	data.OtherServers = key.String()
 
 	return &data, nil
 }
