@@ -5,12 +5,14 @@ package main
 import (
 	"log"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/doncicuto/openuem-nats-service/internal/common"
 	"github.com/doncicuto/openuem-nats-service/internal/logger"
+	"github.com/doncicuto/openuem_utils"
 	"github.com/nats-io/nats-server/v2/server"
 	"golang.org/x/sys/windows/svc"
 )
@@ -47,6 +49,8 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		return
 	}
 
+	cwd, _ := openuem_utils.GetWd()
+
 	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
 		flagOpts, err = GetFlagsOptions(config)
 		if err != nil {
@@ -57,7 +61,10 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		fileOpts.Cluster.Port = flagOpts.Cluster.Port
 		fileOpts.HTTPPort = 8222
 		fileOpts.Routes = flagOpts.Routes
-		log.Println(fileOpts.Routes)
+		fileOpts.Debug = true
+		fileOpts.Trace = true
+		fileOpts.TraceVerbose = true
+		fileOpts.LogFile = filepath.Join(cwd, "logs", "nats-cluster-log.txt")
 	}
 
 	ns, err := server.NewServer(fileOpts)
@@ -67,6 +74,9 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 
 	go ns.Start()
 	log.Println("[INFO]: NATS embedded server has been started")
+
+	// Add log
+	ns.ConfigureLogger()
 
 	// service control manager
 loop:
