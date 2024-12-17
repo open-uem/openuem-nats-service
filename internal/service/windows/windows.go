@@ -55,7 +55,9 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		}
 		fileOpts.Cluster.Name = flagOpts.Cluster.Name
 		fileOpts.Cluster.Port = flagOpts.Cluster.Port
+		fileOpts.HTTPPort = 8222
 		fileOpts.Routes = flagOpts.Routes
+		log.Println(fileOpts.Routes)
 	}
 
 	ns, err := server.NewServer(fileOpts)
@@ -125,7 +127,7 @@ func GetFlagsOptions(config *common.NATSConfig) (*server.Options, error) {
 	flagOpts.Routes = []*url.URL{}
 	otherServers := strings.Split(config.OtherServers, ",")
 	for _, server := range otherServers {
-		u, err := url.Parse(server)
+		u, err := url.Parse("tls://" + server)
 		if err == nil {
 			flagOpts.Routes = append(flagOpts.Routes, u)
 		}
