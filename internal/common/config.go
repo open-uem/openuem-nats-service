@@ -44,7 +44,7 @@ func GenerateNatsConfig() (*NATSConfig, error) {
 
 	key, err := cfg.Section("Certificates").GetKey("OrgName")
 	if err != nil {
-		log.Println("[ERROR]: could not get org name")
+		log.Printf("[ERROR]: could not get org name, %v", err)
 		return nil, err
 	}
 	data.Org = key.String()

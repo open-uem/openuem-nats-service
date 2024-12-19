@@ -3,16 +3,19 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/url"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/doncicuto/openuem-nats-service/internal/common"
 	"github.com/doncicuto/openuem-nats-service/internal/logger"
+	"github.com/doncicuto/openuem_utils"
+	"github.com/nats-io/nats-server/v2/server"
 )
 
 type OpenUEMService struct {
@@ -26,7 +29,7 @@ func New(l *logger.OpenUEMLogger) *OpenUEMService {
 }
 
 func main() {
-	var natsCmd *exec.Cmd
+	var flagOpts *server.Options
 
 	l := logger.New()
 
@@ -38,40 +41,50 @@ func main() {
 
 	log.Println("[INFO]: launching NATS server")
 
-	exePath := common.GetNATSBinPath()
 	cfgPath := common.GetNATSConfigPath()
 
-	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
-		natsCmd = exec.Command(exePath, "--cluster_name", config.ClusterName, "-cluster", "nats://"+config.ServerName+":"+config.ClusterPort, "-routes", config.OtherServers, "-c", cfgPath)
-	} else {
-		natsCmd = exec.Command(exePath, "-c", cfgPath)
-	}
-
-	// Save pid to PIDFILE
-	wd, err := getWd()
+	fileOpts, err := server.ProcessConfigFile(cfgPath)
 	if err != nil {
-		log.Fatal("[FATAL]: could not get working directory")
+		log.Println("[FATAL]: could not parse NATS config file")
+		return
 	}
 
-	pidFile := filepath.Join(wd, "NATSPIDFILE")
+	cwd, err := openuem_utils.GetWd()
+	if err != nil {
+		log.Println("[FATAL]: could not get working directory")
+		return
+	}
 
-	go func() {
-		if err := natsCmd.Start(); err != nil {
-			log.Printf("[ERROR]: could not start nats command: %v", err)
+	if config.ClusterPort != "" && config.ClusterName != "" && config.OtherServers != "" {
+		flagOpts, err = GetFlagsOptions(config)
+		if err != nil {
+			log.Printf("[FATAL]: could not create Flags options, reason: %v", err)
 			return
 		}
+		fileOpts.Cluster.Name = flagOpts.Cluster.Name
+		fileOpts.Cluster.Port = flagOpts.Cluster.Port
+		fileOpts.HTTPPort = 8222
+		fileOpts.Routes = flagOpts.Routes
+	}
 
-		if err := os.WriteFile(pidFile, []byte(fmt.Sprintf("%d\n", os.Getpid())), 0666); err != nil {
-			log.Fatal("[FATAL]: could not create pid file")
-		}
+	if config.Debug {
+		fileOpts.Debug = true
+		fileOpts.Trace = true
+		fileOpts.LogFile = filepath.Join(cwd, "logs", "openuem-nats-debug.txt")
+	}
 
-		log.Println("[INFO]: NATS server is running")
+	ns, err := server.NewServer(fileOpts)
+	if err != nil {
+		log.Fatalf("server init: %v", err)
+	}
 
-		if err := natsCmd.Wait(); err != nil {
-			log.Printf("[ERROR]: could not wait for nats command to finish: %v", err)
-			return
-		}
-	}()
+	go ns.Start()
+	log.Println("[INFO]: NATS embedded server has been started")
+
+	// Add log
+	if config.Debug {
+		ns.ConfigureLogger()
+	}
 
 	// Keep the connection alive
 	done := make(chan os.Signal, 1)
@@ -79,24 +92,31 @@ func main() {
 	log.Println("[INFO]: the NATS server is ready and listening")
 	<-done
 
-	stopCmd := exec.Command("/usr/bin/pkill", "-F", pidFile)
-	if err := stopCmd.Start(); err != nil {
-		log.Println("[ERROR]: could not kill nats-server process")
-	}
+	log.Println("[INFO]: service has received the stop or shutdown command")
 
-	// TODO remove PIDFILE
-	if err := os.Remove(pidFile); err != nil {
-		log.Println("[ERROR]: could not remove PIDFILE")
-	}
-	log.Printf("[INFO]: the NATS responder has stopped listening\n")
+	ns.Shutdown()
+	log.Println("[INFO]: NATS embedded server shutdown")
 	l.Close()
 }
 
-func getWd() (string, error) {
-	ex, err := os.Executable()
+func GetFlagsOptions(config *common.NATSConfig) (*server.Options, error) {
+	var err error
+
+	flagOpts := server.Options{}
+	flagOpts.Cluster.Name = config.ClusterName
+	flagOpts.Cluster.Host = config.ServerName
+	flagOpts.Cluster.Port, err = strconv.Atoi(config.ClusterPort)
 	if err != nil {
-		log.Printf("[ERROR]:could not get executable info: %v", err)
-		return "", err
+		return nil, err
 	}
-	return filepath.Dir(ex), nil
+
+	flagOpts.Routes = []*url.URL{}
+	otherServers := strings.Split(config.OtherServers, ",")
+	for _, server := range otherServers {
+		u, err := url.Parse("tls://" + server)
+		if err == nil {
+			flagOpts.Routes = append(flagOpts.Routes, u)
+		}
+	}
+	return &flagOpts, nil
 }
