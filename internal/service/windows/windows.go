@@ -82,7 +82,9 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 	log.Println("[INFO]: NATS embedded server has been started")
 
 	// Add log
-	ns.ConfigureLogger()
+	if config.Debug {
+		ns.ConfigureLogger()
+	}
 
 	// service control manager
 loop:
