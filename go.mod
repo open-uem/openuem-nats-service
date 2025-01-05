@@ -4,6 +4,7 @@ go 1.23.4
 
 require (
 	github.com/nats-io/nats-server/v2 v2.10.23
+	github.com/open-uem/utils v0.0.0-20250105115248-b0599a18d2b5
 	golang.org/x/sys v0.28.0
 )
 
@@ -14,7 +15,6 @@ require (
 	github.com/nats-io/jwt/v2 v2.5.8 // indirect
 	github.com/nats-io/nkeys v0.4.8 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/open-uem/utils v0.0.0-20250105115248-b0599a18d2b5 // indirect
 	golang.org/x/crypto v0.30.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 )
