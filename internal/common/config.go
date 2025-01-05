@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/doncicuto/openuem_utils"
+	"github.com/open-uem/utils"
 	"gopkg.in/ini.v1"
 )
 
@@ -35,7 +35,7 @@ func GenerateNatsConfig() (*NATSConfig, error) {
 	data := NATSConfig{}
 
 	// Open ini file
-	configFile := openuem_utils.GetConfigFile()
+	configFile := utils.GetConfigFile()
 
 	cfg, err := ini.Load(configFile)
 	if err != nil {

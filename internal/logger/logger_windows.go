@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/doncicuto/openuem_utils"
+	"github.com/open-uem/utils"
 )
 
 type OpenUEMLogger struct {
@@ -18,7 +18,7 @@ func New() *OpenUEMLogger {
 	logger := OpenUEMLogger{}
 
 	// Get executable path to store logs
-	cwd, err := openuem_utils.GetWd()
+	cwd, err := utils.GetWd()
 	if err != nil {
 		log.Fatalf("could not get executable info: %v", err)
 	}

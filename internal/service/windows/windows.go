@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/doncicuto/openuem-nats-service/internal/common"
-	"github.com/doncicuto/openuem-nats-service/internal/logger"
-	"github.com/doncicuto/openuem_utils"
 	"github.com/nats-io/nats-server/v2/server"
+	"github.com/open-uem/openuem-nats-service/internal/common"
+	"github.com/open-uem/openuem-nats-service/internal/logger"
+	"github.com/open-uem/utils"
 	"golang.org/x/sys/windows/svc"
 )
 
@@ -49,7 +49,7 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 		return
 	}
 
-	cwd, err := openuem_utils.GetWd()
+	cwd, err := utils.GetWd()
 	if err != nil {
 		log.Println("[FATAL]: could not get working directory")
 		return

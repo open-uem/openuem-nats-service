@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/doncicuto/openuem_utils"
+	"github.com/open-uem/utils"
 )
 
 func GetTemplatePath() string {
-	wd, err := openuem_utils.GetWd()
+	wd, err := utils.GetWd()
 	if err != nil {
 		log.Fatalf("[FATAL]: could not get working directory")
 	}
@@ -19,7 +19,7 @@ func GetTemplatePath() string {
 }
 
 func GetNATSConfigPath() string {
-	wd, err := openuem_utils.GetWd()
+	wd, err := utils.GetWd()
 	if err != nil {
 		log.Fatalf("[FATAL]: could not get working directory")
 	}
@@ -27,7 +27,7 @@ func GetNATSConfigPath() string {
 }
 
 func GetJetstreamPath() string {
-	wd, err := openuem_utils.GetWd()
+	wd, err := utils.GetWd()
 	if err != nil {
 		log.Fatalf("[FATAL]: could not get working directory")
 	}
@@ -35,7 +35,7 @@ func GetJetstreamPath() string {
 }
 
 func GetNATSBinPath() string {
-	cwd, err := openuem_utils.GetWd()
+	cwd, err := utils.GetWd()
 	if err != nil {
 		log.Fatalf("[FATAL]: could not get working directory")
 	}
