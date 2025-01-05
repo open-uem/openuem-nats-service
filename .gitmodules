@@ -1,3 +1,0 @@
-[submodule "internal/utils"]
-	path = internal/utils
-	url = https://github.com/open-uem/openuem-utils.git
