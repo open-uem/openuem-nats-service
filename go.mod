@@ -1,6 +1,6 @@
 module github.com/open-uem/openuem-nats-service
 
-go 1.23.4
+go 1.23.6
 
 require (
 	github.com/nats-io/nats-server/v2 v2.10.23
