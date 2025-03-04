@@ -41,7 +41,7 @@ authorization: {
       sub: {
         allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
       },
-      publish: ["wingetcfg.>"]
+      publish: ["_INBOX.>", "wingetcfg.>"]
     }},
     {user: "CN=OpenUEM Agent,OU=agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
