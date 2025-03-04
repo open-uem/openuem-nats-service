@@ -39,9 +39,9 @@ authorization: {
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
       sub: {
-        allow: ["_INBOX.>", "report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
+        allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
       },
-      publish: ["wingetcfg.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>"]
+      publish: ["wingetcfg.>", "_INBOX.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>"]
     }},
     {user: "CN=OpenUEM Agent,OU=agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
