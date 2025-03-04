@@ -39,7 +39,7 @@ authorization: {
     }},
     {user: "CN=OpenUEM Agent Worker,OU=worker,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: { 
       sub: {
-        allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
+        allow: ["_INBOX.>", "report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
       },
       publish: ["wingetcfg.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>"]
     }},
