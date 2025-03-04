@@ -41,11 +41,11 @@ authorization: {
       sub: {
         allow: ["report openuem-agents", "deployresult openuem-agents", "ping.agentworker openuem-agents", "agentconfig openuem-agents"]
       },
-      publish: ["wingetcfg.>", "_INBOX.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>"]
+      publish: ["wingetcfg.>"]
     }},
     {user: "CN=OpenUEM Agent,OU=agent,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
-        allow: ["_INBOX.>", "agent.update.>", "agentrollback.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>","agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management", "agent.poweroff.> openuem-agent-management", "agent.reboot.> openuem-agent-management", "wingetcfg.> winget-agent-worker" ]
+        allow: ["_INBOX.>", "agent.update.>", "agentrollback.>", "agent.certificate", "agent.newconfig", "agent.installpackage.>", "agent.uninstallpackage.>", "agent.updatepackage.>", "agent.enable.>", "agent.disable.>", "agent.report.>","agent.startvnc.> openuem-agent-management", "agent.stopvnc.> openuem-agent-management", "agent.restart.> openuem-agent-management", "agent.poweroff.> openuem-agent-management", "agent.reboot.> openuem-agent-management", "wingetcfg.>" ]
       },
       publish: ["report", "_INBOX.>", "deployresult", "agentconfig","$JS.API.STREAM.INFO.AGENTS_STREAM", "$JS.API.CONSUMER.CREATE.>", "$JS.API.CONSUMER.MSG.NEXT.>", "$JS.ACK.>", "$JS.NACK.>"]
     }},
