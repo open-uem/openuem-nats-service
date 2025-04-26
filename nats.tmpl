@@ -30,7 +30,7 @@ authorization: {
       }
     }},
     {user: "CN=OpenUEM Console,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
-      publish: ["agent.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>",]
+      publish: ["agent.>", "agentrollback.>", "notification.>", "certificates.>", "ping.>", "server.update.>", "$JS.API.STREAM.CREATE.>", "$JS.API.STREAM.UPDATE.>", "$JS.API.STREAM.INFO.SERVERS_STREAM"]
     }},
     {user: "CN=OpenUEM Updater Client,OU=updater,O={{ .Org }},POSTALCODE={{ .PostalCode }},STREET={{ .Street }},L={{ .Locality }},ST={{ .Province }},C={{ .Country }},", permissions: {
       sub: {
