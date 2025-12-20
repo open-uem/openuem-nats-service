@@ -1,10 +1,10 @@
 module github.com/open-uem/openuem-nats-service
 
-go 1.25.3
+go 1.25.5
 
 require (
 	github.com/nats-io/nats-server/v2 v2.12.1
-	github.com/open-uem/utils v0.0.0-20251014101747-824dc3574744
+	github.com/open-uem/utils v0.0.0-20251220104704-89477718ebb2
 	golang.org/x/sys v0.37.0
 )
 
