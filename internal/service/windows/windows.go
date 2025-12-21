@@ -45,7 +45,7 @@ func (s *OpenUEMService) Execute(args []string, r <-chan svc.ChangeRequest, chan
 	cfgPath := common.GetNATSConfigPath()
 	fileOpts, err := server.ProcessConfigFile(cfgPath)
 	if err != nil {
-		log.Println("[FATAL]: could not parse NATS config file")
+		log.Printf("[FATAL]: could not parse NATS config file, reason: %v", err)
 		return
 	}
 
